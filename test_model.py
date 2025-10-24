@@ -1,7 +1,54 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from tqdm import tqdm  
+from tqdm import tqdm
+import os 
 
+# --- New Function to Calculate and Save Ensemble Average ---
+
+def plot_and_save_ensemble_average(stds_data_array, num_trajectories):
+    """
+    Calculates the ensemble average of standard deviations across all trajectories,
+    plots the result, and saves the data as a single column CSV file.
+    
+    stds_data_array: 2D NumPy array of standard deviations (trajectories x generations)
+    num_trajectories: The number of trajectories used for the average
+    """
+    
+    # Calculate the Ensemble Average (Mean)
+    # axis=0 averages down the columns, giving one average value per generation.
+    ensemble_average_stds = np.mean(stds_data_array, axis=0)
+    
+    # --- Plotting the Ensemble Average ---
+    
+    fig, ax = plt.subplots(1, 1, figsize=(8, 5))
+    ax.plot(ensemble_average_stds, color='red', label=f'Ensemble Average ({num_trajectories} Trajectories)')
+    
+    ax.set_xlabel('Generation')
+    ax.set_ylabel(r'Ensemble Avg. Standard Deviation ($\bar{\sigma}$)')
+    ax.set_title(f'Rate of Gaussian Model Collapse (Ensemble Average)')
+    ax.legend()
+    plt.tight_layout()
+    plt.savefig('normal_collapse_average_plot.png')
+    plt.show()
+
+    # --- Saving Averaged Data to CSV (One Column) ---
+    
+    avg_output_filename = 'gaussian_collapse_stds_AVERAGE_column.csv'
+    
+    # np.savetxt automatically saves 1D arrays as a single column.
+    np.savetxt(
+        avg_output_filename, 
+        ensemble_average_stds, 
+        delimiter='\n', # Use newline as delimiter for a single column output
+        header=f'Ensemble Average Standard Deviation (sigma) across {num_trajectories} trajectories. (One value per row/generation)',
+        comments='# '
+    )
+    print(f"\nSuccessfully saved ensemble average (single column) to: {avg_output_filename}")
+
+
+# --- ORIGINAL SIMULATION CODE ---
+
+# Initial parameters
 mu_0 = 0
 sigma_0 = 1
 
@@ -11,17 +58,15 @@ def generate_normal_samples(mu, sigma, n):
     sigma: standard deviation
     n: number of samples
     '''
-    return np.random.normal(mu, sigma, n)
+    # We must use np.random.default_rng() or similar to ensure it works outside a Colab cell
+    rng = np.random.default_rng()
+    return rng.normal(mu, sigma, n)
 
 def ml_estimate(samples):
     '''
     samples: array of samples
     '''
-    # Note: ddof=1 is for unbiased variance, which is generally used for true MLE in this context
-    # However, the paper's theory focuses on the MLE of sigma^2, which uses ddof=0. 
-    # Since the simulation matches the paper, we'll keep the original function but 
-    # recognize that np.std(..., ddof=0) is typically used for the maximum likelihood estimate
-    return np.mean(samples), np.std(samples, ddof=1) 
+    return np.mean(samples), np.std(samples, ddof=1)
 
 n = 100  # Number of samples per generation
 num_trajectories = 25   # Number of different trajectories to generate
@@ -33,7 +78,7 @@ pbar = tqdm(total=num_trajectories * num_generations)
 # Generate each trajectory
 for _ in range(num_trajectories):
     mu, sigma = mu_0, sigma_0
-    mean_arr, std_arr = [], [] 
+    mean_arr, std_arr = [], []
 
     for _ in range(num_generations):
        # Generate samples and estimate the new probability
@@ -48,38 +93,12 @@ for _ in range(num_trajectories):
 
 pbar.close()
 
-# --- NEW CODE ADDED TO SAVE DATA ---
+# ----------------------------------------------------
+# --- EXECUTION ---
+# ----------------------------------------------------
 
-# Convert the list of lists (stds) into a NumPy array for easy saving
-# Shape will be (num_trajectories, num_generations)
+# Convert the list of lists (stds) into a 2D NumPy array
 std_data_array = np.array(stds)
 
-# Define the output file name
-output_filename = 'gaussian_collapse_stds_data.csv'
-
-# Save the array to a CSV file. Each row is one simulation trajectory.
-np.savetxt(
-    output_filename, 
-    std_data_array, 
-    delimiter=',', 
-    header='Standard Deviation (sigma) for 25 trajectories over 2500 generations. Each row is a single trajectory.',
-    comments='# '
-)
-
-print(f"\nSuccessfully saved standard deviation data to: {output_filename}")
-
-fig, ax = plt.subplots(1, 2, figsize=(10, 4))
-for mean_arr in means:
-    ax[0].plot(mean_arr)
-for std_arr in stds:
-    ax[1].plot(std_arr)
-
-ax[0].set_xlabel('Generation')
-ax[1].set_xlabel('Generation')
-ax[0].set_ylabel(r'Estimated Mean ($\mu$)')
-ax[1].set_ylabel(r'Estimated Standard Deviation ($\sigma$)')
-ax[0].set_title('Estimated Means')
-ax[1].set_title('Estimated Standard Deviations')
-
-plt.tight_layout()
-plt.show()
+# Call the new function to plot the average and save the single-column CSV
+plot_and_save_ensemble_average(std_data_array, num_trajectories)
