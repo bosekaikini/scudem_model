@@ -1,11 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from scipy.optimize import curve_fit # <--- NEW IMPORT
-
-# ======================================================================
-# 1. THEORETICAL FUNCTION FOR FITTING
-# ======================================================================
+from scipy.optimize import curve_fit 
 
 def fit_function(t, A, B, C):
     """
@@ -34,9 +30,9 @@ def generate_normal_samples(mu, sigma, n):
 def ml_estimate(samples):
     return np.mean(samples), np.std(samples, ddof=1)
 
-n = 100  # Number of samples per generation (M)
-num_trajectories = 25   
-num_generations = 2500 
+n = 1000 # Number of samples per generation (M)
+num_trajectories = 100   
+num_generations = 5000
 
 means, stds = [], []
 pbar = tqdm(total=num_trajectories * num_generations)
