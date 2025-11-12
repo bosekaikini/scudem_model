@@ -48,4 +48,4 @@ Stable Equilibrium: The system collapses to a stable floor (the asymptote of the
 
 ---
 
-We truly learned so much over the course of this project and are very hapopy to have had the opportunity to compete. A big shout to all members of the team, to SCUDEM USC facilitating this competition and our participation, and most of all to Dr. Paula Vasquez for being such an incredible mentor to us during this process.
+We truly learned so much over the course of this project and are very happy to have had the opportunity to compete. A big shout to all members of the team, to SCUDEM USC facilitating this competition and our participation, and most of all to Dr. Paula Vasquez for being such an incredible mentor to us during this process.
