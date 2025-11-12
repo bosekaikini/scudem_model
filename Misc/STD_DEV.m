@@ -1,10 +1,8 @@
-% normal_collapse_sim.m
-% MATLAB equivalent of the provided Python simulation:
-% simulate repeated sampling from N(mu, sigma) and compare ensemble-average std to theory
+
 
 clear; close all; clc;
 
-%% ---------------- Parameters (edit as desired) ----------------
+
 mu_0 = 0;              % initial mean
 sigma_0 = 1.0;         % initial standard deviation
 n = 100;               % samples per generation (M in paper)
@@ -13,15 +11,15 @@ num_generations = 2500;% number of generations (t_max)
 rng_seed = 42;         % RNG seed for reproducibility
 useDarkBackground = false; % set true if you want dark figure background
 outFile = 'normal_collapse_comparison_plot.png';
-%% ----------------------------------------------------------------
 
-rng(rng_seed); % set RNG seed
 
-% Preallocate storage: rows = trajectories, cols = generations
+rng(rng_seed);
+
+
 stds = zeros(num_trajectories, num_generations);
 means = zeros(num_trajectories, num_generations);
 
-% Setup a waitbar for progress (optional)
+
 hWait = waitbar(0, 'Running simulation...', 'Name','Simulation Progress');
 
 for traj = 1:num_trajectories
